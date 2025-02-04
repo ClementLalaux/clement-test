@@ -1,52 +1,47 @@
 name: CI
 
 on:
-  push:
-    branches: ["main"]
-
+    push:
+        branches: ["main"]
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
+    build-an-test:
+        runs-on: ubuntu-latest
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+        steps:
+            -  name: Checkout Code
+               uses: actions/checkout@v4
 
-      - name: Build services
-        run: docker compose -f docker-compose.yml build
+            - name: build services
+              run: docker compose -f docker-compose.yml build
 
-      - name: Install dependencies
-        run: |
-          docker compose run --rm php_coin composer install --no-interaction || \
-          docker compose run --rm php_coin composer update --no-interaction
+            - name: install dependencies
+              run: |
+                docker compose run --rm php_coin composer install --no-interaction || \
+                docker compose run --rm php_coin composer update --no-interaction
 
-      - name: Start SonarQube in the background
-        run: |
-          docker compose -f docker-compose.yml up -d sonarqube
-          # Wait for SonarQube to start
-          until curl -s http://localhost:9000; do echo "Waiting for SonarQube to start..."; sleep 5; done
+            - name: Start SonarQube in the background
+              run: |
+                docker compose -f docker-compose.yml up -d sonarqube
+                sleep 30
 
-      - name: Run SonarQube scan
-        run: |
-          # Utilisation de l'image Docker de sonar-scanner si elle n'est pas installée
-          docker run --rm \
-            -e SONAR_HOST_URL=http://localhost:9000 \
-            -e SONAR_LOGIN=$SONAR_TOKEN \
-            -v $(pwd):/usr/src \
-            sonarsource/sonar-scanner-cli \
-            -Dsonar.projectKey=clement-test
+            - name: Run SonarQube scan
+              run: |
+                sonar-scanner \
+                  -Dsonar.projectKey=clement-test \
+                  -Dsonar.host.url=http://sonarqube:9000 \
+                  -Dsonar.login=$SONAR_TOKEN
 
-      - name: PHP-CS-Fixer
-        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+            - name: PHP-CS-Fixer
+              run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
-      - name: PHPStan
-        run: |
-          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+            - name: PHPStan
+              run: |
+                docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
 
-      - name: All tests
-        run: |
-          docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
+            - name: All tests
+              run: |
+                  docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
-      - name: Clean up
-        if: always()
-        run: docker compose down
+            - name: clean up
+              if: always ()
+              run: docker compose down
