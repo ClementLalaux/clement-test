@@ -21,7 +21,7 @@ jobs:
 
             - name: Run SonarQube scan
               run: |
-                sonar-scanner -Dsonar.projectKey=my_project_key \
+                sonar-scanner -Dsonar.projectKey=clement-test\
                 -Dsonar.host.url=$SONAR_URL \
                 -Dsonar.login=$SONAR_TOKEN
 
