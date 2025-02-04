@@ -27,3 +27,14 @@ services:
             - './.docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf'
         ports:
             - '8080:80'
+
+    sonarqube:
+      image: sonarqube:lts
+      ports:
+        - "9000:9000"
+      environment:
+        - SONARQUBE_JDBC_URL=jdbc:postgresql://postgres:5432/sonarqube
+        - SONARQUBE_JDBC_USERNAME=admin
+        - SONARQUBE_JDBC_PASSWORD=m2i
+      depends_on:
+        - db_coin
