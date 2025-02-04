@@ -17,3 +17,4 @@ RUN apk update \
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 RUN composer ./vendor/bin/phpstan --version
 RUN composer ./vendor/bin/friendsofphp --version
+RUN composer ./vendor/bin/sonar --version
