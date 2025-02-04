@@ -19,6 +19,10 @@ jobs:
                 docker compose run --rm php_coin composer install --no-interaction || \
                 docker compose run --rm php_coin composer update --no-interaction
 
+            - name : install sonarqube
+              run: |
+                docker run --rm -e SONAR_HOST_URL="http://your-sonarqube-server" -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli
+
             - name: Run SonarQube scan
               run: |
                 sonar-scanner -Dsonar.projectKey=my_project_key \
