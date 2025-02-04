@@ -1,52 +1,48 @@
 name: CI
 
 on:
-  push:
-    branches: ["main"]
-
+    push:
+        branches: ["main"]
 jobs:
-  build-an-test:
-    runs-on: ubuntu-latest
+    build-an-test:
+        runs-on: ubuntu-latest
 
-    services:
-      sonarqube:
-        image: sonarqube
-        ports:
-          - 9000:9000
-        options: --health-cmd="curl --silent --fail localhost:9000/api/system/health || exit 1" --health-interval=30s --health-timeout=30s --health-retries=3
+        steps:
+            -  name: Checkout Code
+               uses: actions/checkout@v4
 
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+            - name: build services
+              run: docker compose -f docker-compose.yml build
 
-      - name: Build services
-        run: docker-compose -f docker-compose.yml build
+            - name: install dependencies
+              run: |
+                docker compose run --rm php_coin composer install --no-interaction || \
+                docker compose run --rm php_coin composer update --no-interaction
 
-      - name: Install dependencies
-        run: |
-          docker-compose run --rm php_coin composer install --no-interaction || \
-          docker-compose run --rm php_coin composer update --no-interaction
+            - name : install sonarqube
+              run: |
+                docker run --rm -e SONAR_HOST_URL="http://localhost:9000" -v "$(pwd):/usr/src" sonarsource/sonar-scanner-cli
 
-      - name: SonarQube Scan
-        uses: sonarsource/sonarcloud-github-action@v1
-        with:
-          sonar-project-key: clement-test
-          sonar-project-name: clement-test
-          sonar-project-version: 1.0
-          sonar-host-url: http://localhost:9000
-          sonar-login: ${{ secrets.SONAR_TOKEN }}
+            - name: SonarQube Scan
+              uses: sonarsource/sonarcloud-github-action@v1
+              with:
+                sonar-project-key: clement-test
+                sonar-project-name: clement-test
+                sonar-project-version: 1.0
+                sonar-host-url: http://localhost:9000
+                sonar-login: ${{ secrets.SONAR_TOKEN }}
 
-      - name: PHP-CS-Fixer
-        run: docker-compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+            - name: PHP-CS-Fixer
+              run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
-      - name: PHPStan
-        run: |
-          docker-compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+            - name: PHPStan
+              run: |
+                docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
 
-      - name: All tests
-        run: |
-          docker-compose run --rm php_coin ./vendor/bin/phpunit --testdox
+            - name: All tests
+              run: |
+                  docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
-      - name: Clean up
-        if: always()
-        run: docker-compose down
+            - name: clean up
+              if: always ()
+              run: docker compose down
