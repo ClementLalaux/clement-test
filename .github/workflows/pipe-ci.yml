@@ -5,7 +5,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build-an-test:
+  build-and-test:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,9 +25,19 @@ jobs:
           docker compose -f docker-compose.yml up -d sonarqube
           sleep 20 # Attendre que SonarQube soit prêt
 
+      - name: Install SonarQube Scanner
+        run: |
+          sudo apt-get update && sudo apt-get install -y unzip
+          wget -O sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
+          echo "export PATH=/opt/sonar-scanner/bin:\$PATH" >> ~/.bashrc
+          echo "export SONAR_SCANNER_OPTS='-server'" >> ~/.bashrc
+          source ~/.bashrc
+
       - name: Run SonarQube scan
         run: |
-          sonar-scanner \
+          /opt/sonar-scanner/bin/sonar-scanner \
             -Dsonar.projectKey=clement-test \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 \
