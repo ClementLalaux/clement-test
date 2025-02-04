@@ -1,48 +1,49 @@
 name: CI
 
 on:
-    push:
-        branches: ["main"]
+  push:
+    branches: ["main"]
+
 jobs:
-    build-an-test:
-        runs-on: ubuntu-latest
+  build-an-test:
+    runs-on: ubuntu-latest
 
-        steps:
-            -  name: Checkout Code
-               uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-            - name: build services
-              run: docker compose -f docker-compose.yml build
+      - name: Build services
+        run: docker compose -f docker-compose.yml build
 
-            - name: install dependencies
-              run: |
-                docker compose run --rm php_coin composer install --no-interaction || \
-                docker compose run --rm php_coin composer update --no-interaction
+      - name: Install dependencies
+        run: |
+          docker compose run --rm php_coin composer install --no-interaction || \
+          docker compose run --rm php_coin composer update --no-interaction
 
-            - name: Start SonarQube
-              run: |
-                docker compose -f docker-compose.yml up -d sonarqube
+      - name: Start SonarQube
+        run: |
+          docker compose -f docker-compose.yml up -d sonarqube
+          sleep 20 # Attendre que SonarQube soit prêt
 
-            - name: Run SonarQube scan with GitHub Action
-              uses: sonarsource/sonarcloud-github-action@v2
-              with:
-                projectKey: 'clement-test'
-                projectName: 'clement-test'
-              env:
-                SONAR_TOKEN: sqp_ac6a97a4a82551f1992300b5cca8245142a12e49
-                SONAR_HOST_URL: http://localhost:9000
+      - name: Run SonarQube scan
+        run: |
+          sonar-scanner \
+            -Dsonar.projectKey=clement-test \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=http://localhost:9000 \
+            -Dsonar.login=sqp_ac6a97a4a82551f1992300b5cca8245142a12e49
 
-            - name: PHP-CS-Fixer
-              run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+      - name: PHP-CS-Fixer
+        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
-            - name: PHPStan
-              run: |
-                docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+      - name: PHPStan
+        run: |
+          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
 
-            - name: All tests
-              run: |
-                  docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
+      - name: All tests
+        run: |
+          docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
-            - name: clean up
-              if: always ()
-              run: docker compose down
+      - name: Clean up
+        if: always()
+        run: docker compose down
