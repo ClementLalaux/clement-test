@@ -18,6 +18,7 @@ jobs:
               run: |
                   docker compose run --rm php_coin composer install \
                     --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
+                  docker compose run --rm php_coin composer update --no-interaction
 
             - name: Static Analysis with PHPStan
               run: |
