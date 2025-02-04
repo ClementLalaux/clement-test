@@ -19,16 +19,11 @@ jobs:
                 docker compose run --rm php_coin composer install --no-interaction || \
                 docker compose run --rm php_coin composer update --no-interaction
 
-         
-
             - name: SonarQube Scan
               uses: sonarsource/sonarcloud-github-action@v1
               with:
-                sonar-project-key: clement-test
-                sonar-project-name: clement-test
-                sonar-project-version: 1.0
-                sonar-host-url: http://localhost:9000
-                sonar-login: ${{ secrets.SONAR_TOKEN }}
+                entryPoint: "sonar-scanner"
+                args: "-Dsonar.projectKey=clement-test -Dsonar.projectName=clement-test -Dsonar.projectVersion=1.0 -Dsonar.host.url=http://localhost:9000 -Dsonar.login=${{ secrets.SONAR_TOKEN }}"
 
             - name: PHP-CS-Fixer
               run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
