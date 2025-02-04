@@ -21,9 +21,19 @@ jobs:
           docker compose run --rm php_coin composer update --no-interaction
 
       - name: Start SonarQube
+        run: docker compose -f docker-compose.yml up -d sonarqube
+
+      - name: Wait for SonarQube to be ready
         run: |
-          docker compose -f docker-compose.yml up -d sonarqube
-          sleep 20 # Attendre que SonarQube soit prêt
+          echo "Waiting for SonarQube to be ready..."
+          until curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"'; do
+            echo "SonarQube is still starting..."
+            sleep 10
+          done
+          echo "SonarQube is UP and running!"
+
+      - name: Debug SonarQube Logs
+        run: docker logs $(docker ps -q --filter "name=sonarqube")
 
       - name: Install SonarQube Scanner
         run: |
