@@ -45,7 +45,7 @@ jobs:
             -Dsonar.projectKey=clement-test \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=sqp_d92ae945448fdac9ba71bcc15e182c64054263b8
+            -Dsonar.login=sqp_809ea7182dc8aba63f0b2d963066201fae4a98bb
 
       - name: PHP-CS-Fixer
         run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
