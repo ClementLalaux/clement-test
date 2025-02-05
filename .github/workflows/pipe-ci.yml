@@ -15,6 +15,11 @@ jobs:
       - name: Build services
         run: docker compose -f docker-compose.yml build
 
+      - name: Install dependencies
+        run: |
+            docker compose run --rm php_coin composer install --no-interaction || \
+            docker compose run --rm php_coin composer update --no-interaction
+
       - name: Wait for SonarQube to be ready
         run: |
           echo "Waiting for SonarQube..."
@@ -23,13 +28,6 @@ jobs:
             echo "Waiting..."
           done
           echo "SonarQube is up!"
-
-      - name: Install SonarQube Scanner
-        run: |
-          wget -O sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip
-          mv sonar-scanner-5.0.1.3006-linux sonar-scanner
-          echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
 
       - name: Install SonarQube Scanner
         run: |
