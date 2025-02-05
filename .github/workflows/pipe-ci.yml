@@ -33,23 +33,14 @@ jobs:
           done
           echo "SonarQube is up!"
 
-      - name: Install SonarQube Scanner
-        run: |
-          sudo apt-get update && sudo apt-get install -y unzip
-          wget -O sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-          unzip sonar-scanner.zip
-          sudo mv sonar-scanner-5.0.1.3006-linux /opt/sonar-scanner
-          echo "export PATH=/opt/sonar-scanner/bin:\$PATH" >> ~/.bashrc
-          echo "export SONAR_SCANNER_OPTS='-server'" >> ~/.bashrc
-          source ~/.bashrc
 
-      - name: Run SonarQube scan
-        run: |
-          /opt/sonar-scanner/bin/sonar-scanner \
-            -Dsonar.projectKey=clement-test \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=sqp_809ea7182dc8aba63f0b2d963066201fae4a98bb
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+      - uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: PHP-CS-Fixer
         run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
