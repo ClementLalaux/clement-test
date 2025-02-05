@@ -27,7 +27,7 @@ jobs:
       - name: Wait for SonarQube to be ready
         run: |
           echo "Waiting for SonarQube..."
-          until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
+          until curl -s http://sonarqube:9000/api/system/status | grep -q "UP"; do
             sleep 5
             echo "Waiting..."
           done
