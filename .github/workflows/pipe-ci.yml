@@ -22,7 +22,7 @@ jobs:
 
       - name: PHPStan
         run: |
-          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=10
 
       - name: Show SonarQube logs
         run: docker compose logs sonarqube
