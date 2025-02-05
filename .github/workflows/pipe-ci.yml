@@ -15,25 +15,21 @@ jobs:
       - name: Build services
         run: docker compose -f docker-compose.yml build
 
-      - name: Install dependencies
-        run: |
-          docker compose run --rm php_coin composer install --no-interaction || \
-          docker compose run --rm php_coin composer update --no-interaction
-
-      - name: Start SonarQube
-        run: docker compose -f docker-compose.yml up -d sonarqube
-
       - name: Wait for SonarQube to be ready
         run: |
-          echo "Waiting for SonarQube to be ready..."
-          until curl -s http://localhost:9000/api/system/status | grep -q '"status":"UP"'; do
-            echo "SonarQube is still starting..."
-            sleep 10
+          echo "Waiting for SonarQube..."
+          until curl -s http://localhost:9000/api/system/status | grep -q "UP"; do
+            sleep 5
+            echo "Waiting..."
           done
-          echo "SonarQube is UP and running!"
+          echo "SonarQube is up!"
 
-      - name: Debug SonarQube Logs
-        run: docker logs $(docker ps -q --filter "name=sonarqube")
+      - name: Install SonarQube Scanner
+        run: |
+          wget -O sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+          unzip sonar-scanner.zip
+          mv sonar-scanner-5.0.1.3006-linux sonar-scanner
+          echo "$(pwd)/sonar-scanner/bin" >> $GITHUB_PATH
 
       - name: Install SonarQube Scanner
         run: |
@@ -51,7 +47,7 @@ jobs:
             -Dsonar.projectKey=clement-test \
             -Dsonar.sources=. \
             -Dsonar.host.url=http://localhost:9000 \
-            -Dsonar.login=sqp_ac6a97a4a82551f1992300b5cca8245142a12e49
+            -Dsonar.login=sqp_d92ae945448fdac9ba71bcc15e182c64054263b8
 
       - name: PHP-CS-Fixer
         run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
