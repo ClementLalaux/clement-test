@@ -24,19 +24,12 @@ jobs:
         run: docker compose logs sonarqube
 
 
-      - name: Wait for SonarQube to be ready
-        run: |
-          echo "Waiting for SonarQube..."
-          until curl -s http://sonarqube:9000/api/system/status | grep -q "UP"; do
-            sleep 5
-            echo "Waiting..."
-          done
-          echo "SonarQube is up!"
+
 
 
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
+          fetch-depth: 0
       - uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
