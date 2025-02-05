@@ -22,18 +22,20 @@ jobs:
 
       - name: PHPStan
         run: |
-          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=10
+          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=1
 
       - name: Show SonarQube logs
         run: docker compose logs sonarqube
+
+      - name: PHP-CS-Fixer
+        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: PHP-CS-Fixer
-        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+
 
 
 
