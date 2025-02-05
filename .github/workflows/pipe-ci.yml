@@ -20,6 +20,10 @@ jobs:
             docker compose run --rm php_coin composer install --no-interaction || \
             docker compose run --rm php_coin composer update --no-interaction
 
+      - name: PHPStan
+        run: |
+          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+
       - name: Show SonarQube logs
         run: docker compose logs sonarqube
 
@@ -31,9 +35,7 @@ jobs:
       - name: PHP-CS-Fixer
         run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
-      - name: PHPStan
-        run: |
-          docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=5
+
 
       - name: All tests
         run: |
