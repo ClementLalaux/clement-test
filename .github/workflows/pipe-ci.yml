@@ -20,6 +20,10 @@ jobs:
             docker compose run --rm php_coin composer install --no-interaction || \
             docker compose run --rm php_coin composer update --no-interaction
 
+      - name: Show SonarQube logs
+        run: docker compose logs sonarqube
+
+
       - name: Wait for SonarQube to be ready
         run: |
           echo "Waiting for SonarQube..."
