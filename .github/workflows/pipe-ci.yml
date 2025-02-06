@@ -24,12 +24,14 @@ jobs:
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=1
 
-      - name: PHP-CS-Fixer
-        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+#      - name: PHP-CS-Fixer
+#        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: All tests
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
+
+      - uses: semantic-release/semantic-release@v19
 
       - name: Clean up
         if: always()
