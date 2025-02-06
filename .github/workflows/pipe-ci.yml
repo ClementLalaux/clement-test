@@ -20,24 +20,27 @@ jobs:
             docker compose run --rm php_coin composer install --no-interaction || \
             docker compose run --rm php_coin composer update --no-interaction
 
+      - name: Install Grype
+        run: |
+          curl -sSL https://github.com/anchore/grype/releases/download/v0.65.0/grype_0.65.0_linux_x86_64.tar.gz | tar xz -C /usr/local/bin
+          grype --version
+
+      - name: Run Grype scan on all local Docker images
+        run: |
+          
+          images=$(docker images --format '{{.Repository}}:{{.Tag}}')
+          
+          for image in $images; do
+            echo "Scanning image: $image"
+            grype $image --exit-code 1 || true
+          done
+
       - name: PHPStan
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=1
 
-      - name: List files
-        run: ls -R
-
-      - name: Install Trivy
-        run: |
-          sudo apt-get install -y wget
-          wget https://github.com/aquasecurity/trivy/releases/download/v0.22.0/trivy_0.22.0_Linux-64bit.deb
-          sudo dpkg -i trivy_0.22.0_Linux-64bit.deb
-
-      - name: Run Trivy scan
-        run: trivy fs . --exit-code 1
-
-#      - name: PHP-CS-Fixer
-#        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
+      - name: PHP-CS-Fixer
+        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
       - name: All tests
         run: |
