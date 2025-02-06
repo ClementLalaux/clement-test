@@ -31,6 +31,15 @@ jobs:
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18.0.0"
+
+      - name: Install dependencies
+        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+
+
       - name: Release
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # Permet l'authentification de Semantic Release
