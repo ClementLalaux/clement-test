@@ -24,6 +24,15 @@ jobs:
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpstan analyse src --level=1
 
+      - name: Install Trivy
+        run: |
+          sudo apt-get install -y wget
+          wget https://github.com/aquasecurity/trivy/releases/download/v0.22.0/trivy_0.22.0_Linux-64bit.deb
+          sudo dpkg -i trivy_0.22.0_Linux-64bit.deb
+
+      - name: Run Trivy scan
+        run: trivy fs . --exit-code 1
+
 #      - name: PHP-CS-Fixer
 #        run: docker compose run --rm php_coin ./vendor/bin/php-cs-fixer fix --dry-run --diff
 
@@ -31,25 +40,25 @@ jobs:
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: "latest"
-
-      - name: Install dependencies
-        run: |
-          npm init -y
-          npm install
-          npm ci
-
-      - name: Install dependencies
-        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
-
-
-      - name: Release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # Permet l'authentification de Semantic Release
-        run: npx semantic-release
+#      - name: Setup Node.js
+#        uses: actions/setup-node@v3
+#        with:
+#          node-version: "latest"
+#
+#      - name: Install dependencies
+#        run: |
+#          npm init -y
+#          npm install
+#          npm ci
+#
+#      - name: Install dependencies
+#        run: npm install -g semantic-release @semantic-release/changelog @semantic-release/git @semantic-release/github
+#
+#
+#      - name: Release
+#        env:
+#          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # Permet l'authentification de Semantic Release
+#        run: npx semantic-release
 
       - name: Clean up
         if: always()
