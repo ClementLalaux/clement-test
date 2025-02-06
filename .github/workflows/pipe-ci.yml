@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Grype
         run: |
-          curl -sSL https://github.com/anchore/grype/releases/download/v0.65.0/grype_0.65.0_linux_x86_64.tar.gz | tar xz -C /usr/local/bin
+          curl -sSfL https://raw.githubusercontent.com/anchore/grype/main/install.sh | sh -s -- -b /usr/local/bin
           grype --version
 
       - name: Run Grype scan on all local Docker images
