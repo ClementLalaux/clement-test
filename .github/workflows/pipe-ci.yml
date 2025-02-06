@@ -31,7 +31,10 @@ jobs:
         run: |
           docker compose run --rm php_coin ./vendor/bin/phpunit --testdox
 
-      - uses: semantic-release/semantic-release@v24.2.1
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }} # Permet l'authentification de Semantic Release
+        run: npx semantic-release
 
       - name: Clean up
         if: always()
