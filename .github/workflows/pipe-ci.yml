@@ -32,7 +32,7 @@ jobs:
           
           for image in $images; do
             echo "Scanning image: $image"
-            grype $image --exit-code 1 || true
+            grype $image 
           done
 
       - name: PHPStan
